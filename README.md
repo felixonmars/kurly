@@ -21,6 +21,10 @@ you can simply:
 
 `go get github.com/davidjpeacock/kurly`
 
+or if you're on Arch Linux, you can install it via the Arch User Repositories:
+
+`pacaur -S kurly` or `yaourt -S kurly`
+
 ## Binary download
 
 Binaries are provided for the following platforms:
