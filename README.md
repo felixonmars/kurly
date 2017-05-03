@@ -21,9 +21,14 @@ you can simply:
 
 `go get github.com/davidjpeacock/kurly`
 
-or if you're on Arch Linux, you can install it via the Arch User Repositories:
+## OS Package
 
-`pacaur -S kurly` or `yaourt -S kurly`
+`kurly` can be installed through package management systems on the following platforms:
+
+* Arch Linux via Arch User Repos - `pacaur -S kurly` or `yaourt -S kurly`
+
+*If you're a package maintainer and you have prepared kurly for your OS of choice, please
+PR this section.*
 
 ## Binary download
 
