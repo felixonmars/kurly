@@ -18,7 +18,7 @@ we picked Golang.
 
 ## Installation
 
-**Pre-requisite: Golang version 1.7 or higher.**
+**Pre-requisite: Golang version 1.7.4 or higher.**
 
 From source you can simply:
 
