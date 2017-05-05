@@ -181,12 +181,12 @@ func (o *Options) ProcessData() {
 	}
 }
 
-func (opts *Options) openOutputFile() *os.File {
+func (o *Options) openOutputFile() *os.File {
 	var err error
 	var outputFile *os.File
-	if opts.outputFilename != "" {
-		if outputFile, err = os.Create(opts.outputFilename); err != nil {
-			Status.Fatalf("Error: Unable to create file '%s' for output\n", opts.outputFilename)
+	if o.outputFilename != "" {
+		if outputFile, err = os.Create(o.outputFilename); err != nil {
+			Status.Fatalf("Error: Unable to create file '%s' for output\n", o.outputFilename)
 		}
 	} else {
 		outputFile = os.Stdout
@@ -194,24 +194,24 @@ func (opts *Options) openOutputFile() *os.File {
 	return outputFile
 }
 
-func (opts *Options) uploadFile() {
-	opts.method = "PUT"
+func (o *Options) uploadFile() {
+	o.method = "PUT"
 
 	tr := &http.Transport{
-		ExpectContinueTimeout: time.Duration(opts.expectTimeout) * time.Second,
+		ExpectContinueTimeout: time.Duration(o.expectTimeout) * time.Second,
 	}
 	client.Transport = tr
-	opts.headers = append(opts.headers, "Expect: 100-continue")
+	o.headers = append(o.headers, "Expect: 100-continue")
 
-	reader, err := os.Open(opts.fileUpload)
+	reader, err := os.Open(o.fileUpload)
 	if err != nil {
-		Status.Fatalf("Error opening %s\n", opts.fileUpload)
+		Status.Fatalf("Error opening %s\n", o.fileUpload)
 	}
 
-	if !opts.silent {
+	if !o.silent {
 		fi, err := reader.Stat()
 		if err != nil {
-			Status.Fatalf("Unable to get file stats for %v\n", opts.fileUpload)
+			Status.Fatalf("Unable to get file stats for %v\n", o.fileUpload)
 		}
 		body = &ioprogress.Reader{
 			Reader: reader,
