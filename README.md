@@ -1,5 +1,7 @@
 # kurly
 
+[![Build Status](https://travis-ci.org/davidjpeacock/kurly.svg?branch=master)](https://travis-ci.org/davidjpeacock/kurly)
+
 kurly is an alternative to the widely popular curl program.
 
 kurly is designed to operate in a similar manner to curl, with select features.
@@ -16,8 +18,9 @@ we picked Golang.
 
 ## Installation
 
-From source, assuming you have a recent version of Go installed on your system,
-you can simply:
+**Pre-requisite: Golang version 1.7 or higher.**
+
+From source you can simply:
 
 `go get github.com/davidjpeacock/kurly`
 
