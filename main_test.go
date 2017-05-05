@@ -19,7 +19,7 @@ func TestSetHeaders(t *testing.T) {
 		for _, v := range req.Header {
 			userAgentValue := strings.Join(v, "")
 			if userAgentValue != "Kurly/1.0" {
-				t.Errorf("Expected Kurly/1.0, but got %g", userAgentValue)
+				t.Errorf("Expected Kurly/1.0, but got %s", userAgentValue)
 			}
 		}
 	} else {
