@@ -9,7 +9,7 @@ confinement: strict
 apps:
   kurly:
      command: kurly
-     plugs: [network]
+     plugs: [network, home]
 parts:
   kurly:
      source: . 
