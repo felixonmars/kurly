@@ -15,4 +15,8 @@ parts:
      source: . 
      plugin: go
      go-importpath: github.com/davidjpeacock/kurly
+     after: [go]
+  go:
+    source-tag: go1.8.3
+     
      
