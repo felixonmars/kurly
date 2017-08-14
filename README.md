@@ -29,6 +29,7 @@ From source you can simply:
 `kurly` can be installed through package management systems on the following platforms:
 
 * Arch Linux via Arch User Repos - `pacaur -S kurly` or `yaourt -S kurly`
+* Linux, using the [snap package](https://snapcraft.io/docs/core/install) - `snap install kurly`
 
 *If you're a package maintainer and you have prepared kurly for your OS of choice, please
 PR this section.*
