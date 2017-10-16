@@ -27,6 +27,7 @@ type Options struct {
 	method         string
 	headers        []string
 	agent          string
+	user           string
 	expectTimeout  uint
 	data           []string
 	dataAscii      []string
@@ -95,6 +96,11 @@ func (o *Options) getOptions(app *cli.App) {
 			Usage:       "User agent to set for this request",
 			Destination: &o.agent,
 			Value:       "Kurly/1.0",
+		},
+		cli.StringFlag{
+			Name:        "user, u",
+			Usage:       "User authentication data to set for this request",
+			Destination: &o.user,
 		},
 		cli.StringSliceFlag{
 			Name:  "header, H",
