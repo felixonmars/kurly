@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -61,6 +62,7 @@ func main() {
 
 		client.CheckRedirect = opts.checkRedirect
 		opts.headers = c.StringSlice("header")
+		opts.user = c.String("user")
 		opts.dataAscii = c.StringSlice("data")
 		opts.dataAscii = append(opts.dataAscii, c.StringSlice("data-ascii")...)
 		opts.dataBinary = c.StringSlice("data-binary")
@@ -126,6 +128,7 @@ func main() {
 			Status.Fatalf("Error: unable to create http %s request; %s\n", opts.method, err)
 		}
 		req.Header.Set("User-Agent", opts.agent)
+		req.Header.Set("Authorization", "Basic "+encodeToBase64(opts.user))
 		req.Header.Set("Accept", "*/*")
 		req.Header.Set("Host", remote.Host)
 		if body != nil {
@@ -232,4 +235,8 @@ func maxTime(maxTime uint) {
 		<-time.After(time.Duration(maxTime) * time.Second)
 		Status.Fatalf("Error: Maximum operation time of %d seconds expired, aborting\n", maxTime)
 	}()
+}
+
+func encodeToBase64(a string) string {
+	return base64.StdEncoding.EncodeToString([]byte(a))
 }
