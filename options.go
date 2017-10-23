@@ -1,17 +1,28 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/alsm/ioprogress"
 	"github.com/davidjpeacock/cli"
 )
+
+type Field struct {
+	Type      string
+	IsFile    bool
+	Value     string
+	Filealias string
+}
+
+type FormData map[string]Field
 
 type Options struct {
 	outputFilename string
@@ -36,6 +47,7 @@ type Options struct {
 	dataRaw        []string
 	dataBinary     []string
 	dataURLEncode  []string
+	form           []string
 	head           bool
 }
 
@@ -144,6 +156,10 @@ func (o *Options) getOptions(app *cli.App) {
 			Name:  "data-urlencode",
 			Usage: "Sends the data as urlencoded ascii",
 		},
+		cli.StringSliceFlag{
+			Name:  "form, F",
+			Usage: "Send HTTP multipart post data",
+		},
 		cli.BoolFlag{
 			Name:        "head, I",
 			Usage:       "Get HEAD from URL only",
@@ -244,4 +260,98 @@ func (o *Options) uploadFile() {
 	} else {
 		body = reader
 	}
+}
+
+// ProcessFormData is used to parse the form data passed as commandline arguments.
+func (o *Options) ProcessFormData() (FormData, error) {
+	if len(o.form) == 0 {
+		return nil, nil
+	}
+
+	fd := make(FormData, 0)
+
+	for _, field := range o.form {
+		fieldName, f, err := parseField(field)
+		if err != nil {
+			return nil, err
+		}
+
+		fd[fieldName] = f
+	}
+	return fd, nil
+}
+
+func parseField(raw string) (string, Field, error) {
+	f := Field{}
+	returnKey := ""
+	parts := splitFormParams(raw)
+	for i, part := range parts {
+		key, value, err := getKeyVal(part)
+		if err != nil {
+			return "", f, err
+		}
+		switch key {
+		case "type":
+			f.Type = value
+		case "filename":
+			f.Filealias = value
+		default:
+			if returnKey != "" || i != 0 {
+				return "", Field{}, errors.New("malformed form data")
+			}
+			returnKey = key
+			if strings.HasPrefix(value, "@") && len(value) > 1 {
+				f.IsFile = true
+				f.Value = value[1:]
+				continue
+			}
+
+			f.Value = value
+			f.IsFile = false
+		}
+	}
+	if f.IsFile && f.Filealias == "" {
+		f.Filealias = filepath.Base(f.Value)
+	}
+
+	return returnKey, f, nil
+}
+
+func splitFormParams(raw string) []string {
+	inQuotes := false
+	temp := ""
+	strList := make([]string, 0)
+	for _, ch := range raw {
+		t := string(ch)
+		if t == "\"" {
+			inQuotes = !inQuotes
+			continue
+		}
+
+		if t == ";" && !inQuotes {
+			if temp != "" {
+				strList = append(strList, temp)
+				temp = ""
+			}
+			continue
+		}
+
+		temp += t
+	}
+
+	if temp != "" {
+		strList = append(strList, temp)
+	}
+
+	return strList
+}
+
+func getKeyVal(raw string) (string, string, error) {
+	splits := strings.Split(raw, "=")
+	if len(splits) < 2 {
+		return "", "", errors.New("not a valid key-value pair")
+	}
+	key := splits[0]
+	val := strings.Join(splits[1:], "=")
+	return key, val, nil
 }

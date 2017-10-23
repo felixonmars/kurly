@@ -7,7 +7,9 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"net/url"
 	"os"
 	"path"
@@ -69,8 +71,17 @@ func main() {
 		opts.dataBinary = c.StringSlice("data-binary")
 		opts.dataRaw = c.StringSlice("data-raw")
 		opts.dataURLEncode = c.StringSlice("data-urlencode")
+		opts.form = c.StringSlice("form")
 
 		opts.ProcessData()
+		d, err := opts.ProcessFormData()
+		if err != nil {
+			return err
+		}
+		if d != nil && len(opts.data) > 0 {
+			Status.Fatalf("Error: unable to create http request; %s\n",
+				"only one type of body can be accepted : either multipart form or url encoded values")
+		}
 
 		if c.NArg() == 0 {
 			cli.ShowAppHelp(c)
@@ -110,17 +121,35 @@ func main() {
 			opts.uploadFile()
 		}
 
-		if len(opts.data) > 0 {
+		if len(opts.data) > 0 || len(d) > 0 {
 			var data bytes.Buffer
 			opts.method = "POST"
-			opts.headers = append(opts.headers, "Content-Type: application/x-www-form-urlencoded")
 
-			for i, d := range opts.data {
-				data.WriteString(d)
-				if i < len(opts.data)-1 {
-					data.WriteRune('&')
+			header := ""
+
+			if len(opts.data) > 0 {
+				header = "Content-Type: application/x-www-form-urlencoded"
+				for i, d := range opts.data {
+					data.WriteString(d)
+					if i < len(opts.data)-1 {
+						data.WriteRune('&')
+					}
 				}
 			}
+
+			if len(d) > 0 {
+				w := multipart.NewWriter(&data)
+				for key, field := range d {
+					err := writeToMultipart(w, key, field)
+					if err != nil {
+						Status.Fatalf("Error: unable to create http request; %s\n", err)
+					}
+				}
+				w.Close()
+				header = "Content-Type: " + w.FormDataContentType()
+			}
+
+			opts.headers = append(opts.headers, header)
 			body = &data
 		}
 
@@ -245,6 +274,50 @@ func setHeaders(r *http.Request, h []string) {
 			r.Header.Set(hParts[0], strings.Join(hParts[1:], ": "))
 		}
 	}
+}
+
+func writeToMultipart(w *multipart.Writer, key string, field Field) error {
+	if field.IsFile {
+		file, err := os.Open(field.Value)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		h := make(textproto.MIMEHeader)
+		h.Set("Content-Disposition",
+			fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
+				key, field.Filealias))
+		h.Set("Content-Type", "application/octet-stream")
+		if field.Type != "" {
+			h.Set("Content-Type", field.Type)
+		}
+
+		fw, err := w.CreatePart(h)
+		if err != nil {
+			return err
+		}
+		if _, err = io.Copy(fw, file); err != nil {
+			return err
+		}
+	} else {
+		h := make(textproto.MIMEHeader)
+		h.Set("Content-Disposition",
+			fmt.Sprintf(`form-data; name="%s"`, key))
+		if field.Type != "" {
+			h.Set("Content-Type", field.Type)
+		}
+		wr, err := w.CreatePart(h)
+		if err != nil {
+			return err
+		}
+		_, err = wr.Write([]byte(field.Value))
+		if err != nil {
+			return err
+		}
+
+	}
+	return nil
 }
 
 func setCookieHeader(r *http.Request, arg string) {
