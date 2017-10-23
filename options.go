@@ -31,6 +31,8 @@ type Options struct {
 	verbose        bool
 	maxTime        uint
 	remoteTime     bool
+	cookie         string
+	cookieJar      string
 	followRedirect bool
 	maxRedirects   uint
 	redirectsTaken uint
@@ -38,6 +40,7 @@ type Options struct {
 	method         string
 	headers        []string
 	agent          string
+	user           string
 	expectTimeout  uint
 	data           []string
 	dataAscii      []string
@@ -80,6 +83,16 @@ func (o *Options) getOptions(app *cli.App) {
 			Usage:       "Set the timestamp of the local file to that of the remote file, if available",
 			Destination: &o.remoteTime,
 		},
+		cli.StringFlag{
+			Name:        "cookie, b",
+			Usage:       "Set the cookies to be sent along with this request",
+			Destination: &o.cookie,
+		},
+		cli.StringFlag{
+			Name:        "cookie-jar, c",
+			Usage:       "File to which the cookies have to be written (in cURL's cookie-jar file format)",
+			Destination: &o.cookieJar,
+		},
 		cli.BoolFlag{
 			Name:        "location, L",
 			Usage:       "Follow 3xx redirects",
@@ -107,6 +120,11 @@ func (o *Options) getOptions(app *cli.App) {
 			Usage:       "User agent to set for this request",
 			Destination: &o.agent,
 			Value:       "Kurly/1.0",
+		},
+		cli.StringFlag{
+			Name:        "user, u",
+			Usage:       "User authentication data to set for this request",
+			Destination: &o.user,
 		},
 		cli.StringSliceFlag{
 			Name:  "header, H",

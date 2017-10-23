@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -16,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aki237/nscjar"
 	"github.com/alsm/ioprogress"
 	"github.com/davidjpeacock/cli"
 )
@@ -63,6 +65,7 @@ func main() {
 
 		client.CheckRedirect = opts.checkRedirect
 		opts.headers = c.StringSlice("header")
+		opts.user = c.String("user")
 		opts.dataAscii = c.StringSlice("data")
 		opts.dataAscii = append(opts.dataAscii, c.StringSlice("data-ascii")...)
 		opts.dataBinary = c.StringSlice("data-binary")
@@ -155,6 +158,7 @@ func main() {
 			Status.Fatalf("Error: unable to create http %s request; %s\n", opts.method, err)
 		}
 		req.Header.Set("User-Agent", opts.agent)
+		req.Header.Set("Authorization", "Basic "+encodeToBase64(opts.user))
 		req.Header.Set("Accept", "*/*")
 		req.Header.Set("Host", remote.Host)
 		if body != nil {
@@ -174,6 +178,7 @@ func main() {
 			}
 		}
 		setHeaders(req, opts.headers)
+		setCookieHeader(req, opts.cookie)
 
 		fmt.Fprintln(Outgoing, req.Method, req.URL.Path, req.Proto)
 		for k, v := range req.Header {
@@ -223,6 +228,21 @@ func main() {
 			if t, err := time.Parse("Mon, 02 Jan 2006 15:04:05 MST", rTime); err == nil {
 				os.Chtimes(opts.outputFilename, t, t)
 			}
+		}
+
+		if opts.cookieJar != "" && len(resp.Cookies()) > 0 {
+			cookies := resp.Cookies()
+			for _, val := range cookies {
+				if val.Domain == "" {
+					u, err := resp.Location()
+					if err != nil {
+						u = req.URL
+					}
+
+					val.Domain = u.Hostname()
+				}
+			}
+			saveCookies(cookies, opts.cookieJar)
 		}
 		return nil
 	}
@@ -300,9 +320,106 @@ func writeToMultipart(w *multipart.Writer, key string, field Field) error {
 	return nil
 }
 
+func setCookieHeader(r *http.Request, arg string) {
+	// according to cURL man pages and operations, if the cookie string passed has
+	// a "=" in it, it means that is a valid cookie. Else it will search for the
+	// cookie jar file of the name and tries to read cookies from it
+	if strings.Contains(arg, "=") {
+		r.Header.Set("Cookie", arg)
+		return
+	}
+
+	// If the specified cookie string is invalid and the the file of the same name
+	// doesn't exist, cURL doesn't throw any error, rather it just sets the cookie
+	// to null
+	cookieFile, err := os.Open(arg)
+	if err != nil {
+		return
+	}
+
+	p := nscjar.Parser{}
+
+	cookies, err := p.Unmarshal(cookieFile)
+	if err != nil {
+		return
+	}
+
+	// reference time for checking the expiry of a cookie from the file
+	t := time.Now()
+
+	for _, val := range cookies {
+		// Skip if cookie is secure and request isn't
+		if val.Secure && r.URL.Scheme != "https" {
+			continue
+		}
+
+		// Skip if the cookie has expired
+		if val.Expires.Unix() <= t.Unix() {
+			continue
+		}
+
+		host := r.URL.Hostname()
+		// Domain matching (according to rfc6265::Section-5.1.3)
+		if strings.ToLower(val.Domain) != strings.ToLower(host) {
+			suffix := val.Domain
+			if !strings.HasPrefix(val.Domain, ".") {
+				suffix = "." + suffix
+			}
+			if !strings.HasSuffix(host, suffix) {
+				continue
+			}
+		}
+
+		// Path matching (according to rfc6265::Section-5.1.4)
+		uri, _ := url.Parse("http://" + val.Domain + val.Path)
+		if strings.HasPrefix(r.URL.Path, uri.Path) && r.URL.Path != uri.Path {
+			continue
+		}
+
+		r.AddCookie(val)
+	}
+}
+
+func saveCookies(cs []*http.Cookie, filename string) {
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_RDWR, 0666)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warning : unable to save the cookie to the file : %s\n", err)
+		return
+	}
+
+	jar := nscjar.NewCookieJar()
+
+	// get the already stored cookies if exists in file.
+	p := nscjar.Parser{}
+	if cookies, err := p.Unmarshal(f); err == nil {
+		jar.AddCookies(cookies...)
+	}
+
+	jar.AddCookies(cs...)
+
+	_, err = f.Seek(0, 0)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warning : unable to save the cookie to the file : %s\n", err)
+		return
+	}
+
+	err = jar.Marshal(f)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warning : unable to save the cookie to the file : %s\n", err)
+	}
+	err = f.Close()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warning : unable to save the cookie to the file : %s\n", err)
+	}
+}
+
 func maxTime(maxTime uint) {
 	go func() {
 		<-time.After(time.Duration(maxTime) * time.Second)
 		Status.Fatalf("Error: Maximum operation time of %d seconds expired, aborting\n", maxTime)
 	}()
+}
+
+func encodeToBase64(a string) string {
+	return base64.StdEncoding.EncodeToString([]byte(a))
 }
