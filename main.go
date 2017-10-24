@@ -117,6 +117,23 @@ func main() {
 
 		outputFile := opts.openOutputFile()
 
+		continueAtInt := uint64(0)
+		if opts.continueAt != "" {
+			if opts.continueAt == "-" {
+				fileInfo, err := outputFile.Stat()
+				if err != nil {
+					Status.Fatalf("Error: unable to set content range automatically from file; %s\n", err)
+				}
+				continueAtInt = uint64(fileInfo.Size())
+			} else {
+				continueAtInt, err = strconv.ParseUint(opts.continueAt, 10, 64)
+				if err != nil {
+					Status.Fatalf("Error: unable to create http request; %s\n",
+						"expected a valid positive number for continue-at option")
+				}
+			}
+		}
+
 		if opts.fileUpload != "" {
 			opts.uploadFile()
 		}
@@ -157,6 +174,16 @@ func main() {
 		if err != nil {
 			Status.Fatalf("Error: unable to create http %s request; %s\n", opts.method, err)
 		}
+		// Seek to given offset of the file and set the "Range" header
+		if continueAtInt > 0 {
+			if opts.outputFilename != "" {
+				_, err = outputFile.Seek(int64(continueAtInt), 0)
+				if err != nil {
+					Status.Fatalf("Error: seek in the given output file; %s\n", err)
+				}
+			}
+			req.Header.Set("Range", fmt.Sprintf("bytes=%d-", continueAtInt))
+		}
 		req.Header.Set("User-Agent", opts.agent)
 		if opts.user != "" {
 			req.Header.Set("Authorization", "Basic "+encodeToBase64(opts.user))
@@ -192,6 +219,10 @@ func main() {
 			Status.Fatalf("Error: Unable to get URL; %s\n", err)
 		}
 		defer resp.Body.Close()
+
+		if continueAtInt > 0 && resp.StatusCode == 416 {
+			Status.Fatalf("Error: Unable to get URL; %s\n", "Either the server doesn't support ranges or an invalid range is passed")
+		}
 
 		fmt.Fprintf(Incoming, "%s %s\n", resp.Proto, resp.Status)
 
