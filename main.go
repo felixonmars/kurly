@@ -158,7 +158,9 @@ func main() {
 			Status.Fatalf("Error: unable to create http %s request; %s\n", opts.method, err)
 		}
 		req.Header.Set("User-Agent", opts.agent)
-		req.Header.Set("Authorization", "Basic "+encodeToBase64(opts.user))
+		if opts.user != "" {
+			req.Header.Set("Authorization", "Basic "+encodeToBase64(opts.user))
+		}
 		req.Header.Set("Accept", "*/*")
 		req.Header.Set("Host", remote.Host)
 		if body != nil {
