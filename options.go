@@ -28,6 +28,7 @@ type Options struct {
 	outputFilename string
 	fileUpload     string
 	remoteName     bool
+	continueAt     string
 	verbose        bool
 	maxTime        uint
 	remoteTime     bool
@@ -67,6 +68,11 @@ func (o *Options) getOptions(app *cli.App) {
 			Name:        "remote-name, O",
 			Usage:       "Save output to file named with file part of URL",
 			Destination: &o.remoteName,
+		},
+		cli.StringFlag{
+			Name:        "continue-at, C",
+			Usage:       "Resume transfer from offset",
+			Destination: &o.continueAt,
 		},
 		cli.BoolFlag{
 			Name:        "v",
@@ -219,8 +225,8 @@ func (o *Options) openOutputFile() *os.File {
 	var err error
 	var outputFile *os.File
 	if o.outputFilename != "" {
-		if outputFile, err = os.Create(o.outputFilename); err != nil {
-			Status.Fatalf("Error: Unable to create file '%s' for output\n", o.outputFilename)
+		if outputFile, err = os.OpenFile(o.outputFilename, os.O_CREATE|os.O_RDWR, 0666); err != nil {
+			Status.Fatalf("Error: Unable to create/open file '%s' for output\n", o.outputFilename)
 		}
 	} else {
 		outputFile = os.Stdout
