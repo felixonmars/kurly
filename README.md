@@ -38,10 +38,10 @@ PR this section.*
 
 Binaries are provided for the following platforms:
 
-* [Linux amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.0.0/kurly-linux-amd64-v1.0.0.tar.gz)
-* [Linux arm](https://github.com/davidjpeacock/kurly/releases/download/v1.0.0/kurly-linux-arm-v1.0.0.tar.gz)
-* [Mac OS X amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.0.0/kurly-osx-amd64-v1.0.0.tar.gz)
-* [Windows amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.0.0/kurly-windows-amd64-v1.0.0.zip)
+* [Linux amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-linux-amd64-v1.1.0.tar.gz)
+* [Linux arm](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-linux-arm-v1.1.0.tar.gz)
+* [Mac OS X amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-osx-amd64-v1.1.0.tar.gz)
+* [Windows amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-windows-amd64-v1.1.0.zip)
 
 ## Usage
 
