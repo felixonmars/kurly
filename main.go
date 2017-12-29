@@ -56,7 +56,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "kurly"
 	app.Usage = "[options] URL"
-	app.Version = "1.0.0"
+	app.Version = "1.1.0"
 	opts.getOptions(app)
 
 	app.Action = func(c *cli.Context) error {
