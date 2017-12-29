@@ -181,6 +181,10 @@ func (o *Options) checkRedirect(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
 
+	if o.verbose {
+		Status.Println(" Ignoring the response body")
+		Status.Printf(" Issuing request to this URL : %s\n", req.URL)
+	}
 	return nil
 }
 
