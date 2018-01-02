@@ -9,6 +9,7 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"net/http/httptrace"
 	"net/textproto"
 	"net/url"
 	"os"
@@ -174,6 +175,11 @@ func main() {
 		if err != nil {
 			Status.Fatalf("Error: unable to create http %s request; %s\n", opts.method, err)
 		}
+
+		if opts.verbose {
+			req = req.WithContext(httptrace.WithClientTrace(req.Context(), NewClientTraceForRequest(req)))
+		}
+
 		// Seek to given offset of the file and set the "Range" header
 		if continueAtInt > 0 {
 			if opts.outputFilename != "" {
@@ -208,11 +214,6 @@ func main() {
 		}
 		setHeaders(req, opts.headers)
 		setCookieHeader(req, opts.cookie)
-
-		fmt.Fprintln(Outgoing, req.Method, req.URL.Path, req.Proto)
-		for k, v := range req.Header {
-			fmt.Fprintln(Outgoing, k, v)
-		}
 
 		resp, err := client.Do(req)
 		if err != nil {
