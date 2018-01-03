@@ -50,6 +50,7 @@ type Options struct {
 	dataURLEncode  []string
 	form           []string
 	head           bool
+	insecure       bool
 }
 
 func (o *Options) getOptions(app *cli.App) {
@@ -170,6 +171,11 @@ func (o *Options) getOptions(app *cli.App) {
 			Name:        "head, I",
 			Usage:       "Get HEAD from URL only",
 			Destination: &o.head,
+		},
+		cli.BoolFlag{
+			Name:        "insecure, k",
+			Usage:       "Allow insecure server connections when using TLS",
+			Destination: &o.insecure,
 		},
 	}
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -65,6 +66,11 @@ func main() {
 		var err error
 
 		client.CheckRedirect = opts.checkRedirect
+		if opts.insecure {
+			client.Transport = &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			}
+		}
 		opts.headers = c.StringSlice("header")
 		opts.user = c.String("user")
 		opts.dataAscii = c.StringSlice("data")
