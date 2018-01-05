@@ -4,11 +4,11 @@ First, thank you for reading this and considering contributing to the continued 
 
 If you haven't already, come find us in IRC ([#kurly](irc://chat.freenode.net/kurly) on freenode). We want you working on things you're excited about.
 
-Here are some important resources:
+## Important resources
 
-    * [Report Issues](https://github.com/davidjpeacock/kurly/issues) for general bug reports feature requests
-    * [Email](mailto:david.j.peacock@gmail.com) for security related bugs that require sensitivity
-    * IRC: chat.freenode.net channel [#kurly](irc://chat.freenode.net/kurly)
+[Report Issues](https://github.com/davidjpeacock/kurly/issues) for general bug reports feature requests
+[Email](mailto:david.j.peacock@gmail.com) for security related bugs that require sensitivity
+[#kurly](irc://chat.freenode.net/kurly) IRC channel on Freenode
 
 ## How to help
 
