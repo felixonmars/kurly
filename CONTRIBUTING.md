@@ -6,9 +6,9 @@ If you haven't already, come find us in IRC ([#kurly](irc://chat.freenode.net/ku
 
 ## Important resources
 
-[Report Issues](https://github.com/davidjpeacock/kurly/issues) for general bug reports feature requests
-[Email](mailto:david.j.peacock@gmail.com) for security related bugs that require sensitivity
-[#kurly](irc://chat.freenode.net/kurly) IRC channel on Freenode
+* [GitHub Issues](https://github.com/davidjpeacock/kurly/issues) for general bug reports feature requests
+* [Email](mailto:david.j.peacock@gmail.com) for security related bugs that require sensitivity
+* [#kurly](irc://chat.freenode.net/kurly) IRC channel on Freenode
 
 ## How to help
 
