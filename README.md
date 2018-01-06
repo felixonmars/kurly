@@ -30,6 +30,7 @@ From source you can simply:
 
 * Arch Linux via Arch User Repos - `pacaur -S kurly` or `yaourt -S kurly`
 * Linux, using the [snap package](https://snapcraft.io/docs/core/install) - `snap install kurly`
+* Linux x86 64 via [RPM](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-1.1.0-0.x86_64.rpm) - `yum install kurly-1.1.0-0.x86_64.rpm`
 
 *If you're a package maintainer and you have prepared kurly for your OS of choice, please
 PR this section.*
