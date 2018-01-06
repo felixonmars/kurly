@@ -5,12 +5,8 @@ Summary:	alternative to the widely popular curl program
 License:        Apache-2.0
 Group:          Applications/Internet
 Url:            https://github.com/davidjpeacock/kurly
-Source:         https://github.com/davidjpeacock/kurly/archive/v1.1.0.tar.gz
-%if 0%{?suse_version}
+Source:         https://github.com/davidjpeacock/kurly/archive/kurly-1.1.0.tar.gz
 BuildRequires:	go
-%else
-BuildRequires:	golang
-%endif
 BuildRoot:      %{_tmppath}/%{name}-1.1.0-build
 
 %description
