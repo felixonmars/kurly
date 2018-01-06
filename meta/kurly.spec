@@ -7,9 +7,9 @@ Group:          Applications/Internet
 Url:            https://github.com/davidjpeacock/kurly
 Source:         https://github.com/davidjpeacock/kurly/archive/v1.1.0.tar.gz
 %if 0%{?suse_version}
-BuildRequires:	go, git
+BuildRequires:	go
 %else
-BuildRequires:	golang, git
+BuildRequires:	golang
 %endif
 BuildRoot:      %{_tmppath}/%{name}-1.1.0-build
 
@@ -33,7 +33,6 @@ install -D kurly $RPM_BUILD_ROOT/usr/bin/kurly
 
 %files
 %{_bindir}/kurly
-## Changelog, license, man pages and other files to be included.
 %defattr(-,root,root)
 
 %changelog
