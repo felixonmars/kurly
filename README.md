@@ -94,8 +94,10 @@ love you to help.
 
 ## Contributing
 
-Bug reports, feature requests, and pull requests are all welcome.
+Bug reports, feature requests, and pull requests are all welcome.  Thank you!
+
+Please see [CONTRIBUTING.md](https://github.com/davidjpeacock/kurly/blob/master/CONTRIBUTING.md) for details of how to work with us.
 
 ## License
 
-kurly is Copyright (c) 2017 David J Peacock and Al S-M, and is published under the Apache 2.0 license.
+kurly is Copyright (c) 2017-2018 David J Peacock and Al S-M, and is published under the Apache 2.0 license.
