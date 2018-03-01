@@ -31,6 +31,10 @@ var (
 	Outgoing io.Writer
 )
 
+const (
+	version string = "1.1.0"
+)
+
 type LogWriter struct {
 	*log.Logger
 }
@@ -58,7 +62,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "kurly"
 	app.Usage = "[options] URL"
-	app.Version = "1.1.0"
+	app.Version = version
 	opts.getOptions(app)
 
 	app.Action = func(c *cli.Context) error {
