@@ -1,12 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -51,6 +55,7 @@ type Options struct {
 	form           []string
 	head           bool
 	insecure       bool
+	fdata          FormData // fdata is the field for processed form data
 }
 
 func (o *Options) getOptions(app *cli.App) {
@@ -194,6 +199,99 @@ func (o *Options) checkRedirect(req *http.Request, via []*http.Request) error {
 	return nil
 }
 
+// BuildCommonOptions function is used to build all the common options from the cli.Context
+// which is common for all the URL args passed from commandline.
+// This this process takes place only once.
+func (opts *Options) BuildCommonOptions(c *cli.Context) error {
+	opts.headers = c.StringSlice("header")
+	opts.user = c.String("user")
+	opts.dataAscii = c.StringSlice("data")
+	opts.dataAscii = append(opts.dataAscii, c.StringSlice("data-ascii")...)
+	opts.dataBinary = c.StringSlice("data-binary")
+	opts.dataRaw = c.StringSlice("data-raw")
+	opts.dataURLEncode = c.StringSlice("data-urlencode")
+	opts.form = c.StringSlice("form")
+
+	// If verbose set the logs writers
+	if opts.verbose {
+		Incoming.(*LogWriter).SetOutput(os.Stderr)
+		Outgoing.(*LogWriter).SetOutput(os.Stderr)
+	}
+
+	// Process form data or url-encoded data
+	opts.ProcessData()
+	d, err := opts.ProcessFormData()
+	if err != nil {
+		return err
+	}
+	if d != nil && len(opts.data) > 0 {
+		return fmt.Errorf("only one type of body can be accepted : either multipart form or url encoded values")
+	}
+	opts.fdata = d
+
+	// Set the request method if Head option is specified
+	if opts.head {
+		opts.method = "HEAD"
+		Incoming = io.MultiWriter(os.Stdout, Incoming.(*LogWriter))
+	}
+
+	// Start the timer
+	if opts.maxTime > 0 {
+		maxTime(opts.maxTime)
+	}
+
+	return nil
+}
+
+// BuildTargetSpecificOptions function is used to build the options specific to a given URL target.
+// This has to run for every URL separately.
+func (opts *Options) BuildTargetSpecificOptions(target string, body io.Reader) error {
+	// Set the output filename from the remote URL, if -O is passed.
+	if opts.remoteName {
+		opts.outputFilename = path.Base(target)
+	}
+
+	// Initialize the file upload if specified.
+	if opts.fileUpload != "" {
+		opts.uploadFile(body)
+	}
+
+	// Process headers and post data
+	if len(opts.data) > 0 || len(opts.fdata) > 0 {
+		var data bytes.Buffer
+		opts.method = "POST"
+
+		header := ""
+
+		if len(opts.data) > 0 {
+			header = "Content-Type: application/x-www-form-urlencoded"
+			for i, d := range opts.data {
+				data.WriteString(d)
+				if i < len(opts.data)-1 {
+					data.WriteRune('&')
+				}
+			}
+		}
+
+		if len(opts.fdata) > 0 {
+			w := multipart.NewWriter(&data)
+			for key, field := range opts.fdata {
+				err := writeToMultipart(w, key, field)
+				if err != nil {
+					return fmt.Errorf("unable to create http request; %s\n", err)
+				}
+			}
+			w.Close()
+			header = "Content-Type: " + w.FormDataContentType()
+		}
+
+		opts.headers = append(opts.headers, header)
+		body = &data
+	}
+
+	return nil
+}
+
 func (o *Options) ProcessData() {
 	var uriEncodes url.Values
 	for _, d := range o.dataAscii {
@@ -244,7 +342,7 @@ func (o *Options) openOutputFile() *os.File {
 	return outputFile
 }
 
-func (o *Options) uploadFile() {
+func (o *Options) uploadFile(body io.Reader) {
 	o.method = "PUT"
 
 	tr := &http.Transport{
