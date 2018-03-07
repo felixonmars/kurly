@@ -72,9 +72,12 @@ func main() {
 		if err != nil {
 			return err
 		}
-		err = fetchUrl(c.Args().Get(0), opts, c)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "kurly : %s\n", err)
+
+		for _, uri := range c.Args() {
+			err := fetchUrl(uri, opts, c)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "kurly : %s\n", err)
+			}
 		}
 		return nil
 	}
