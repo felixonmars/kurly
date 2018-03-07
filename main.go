@@ -14,7 +14,6 @@ import (
 	"net/textproto"
 	"net/url"
 	"os"
-	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -53,245 +52,188 @@ func init() {
 	Outgoing = &LogWriter{Logger: log.New(ioutil.Discard, "> ", 0)}
 }
 
-var body io.Reader
-
 func main() {
-	var target string
 	var opts Options
 
 	app := cli.NewApp()
 	app.Name = "kurly"
 	app.Usage = "[options] URL"
 	app.Version = version
+
 	opts.getOptions(app)
 
 	app.Action = func(c *cli.Context) error {
-		var remote *url.URL
-		var err error
-
-		client.CheckRedirect = opts.checkRedirect
-		if opts.insecure {
-			client.Transport = &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-			}
-		}
-		opts.headers = c.StringSlice("header")
-		opts.user = c.String("user")
-		opts.dataAscii = c.StringSlice("data")
-		opts.dataAscii = append(opts.dataAscii, c.StringSlice("data-ascii")...)
-		opts.dataBinary = c.StringSlice("data-binary")
-		opts.dataRaw = c.StringSlice("data-raw")
-		opts.dataURLEncode = c.StringSlice("data-urlencode")
-		opts.form = c.StringSlice("form")
-
-		opts.ProcessData()
-		d, err := opts.ProcessFormData()
-		if err != nil {
-			return err
-		}
-		if d != nil && len(opts.data) > 0 {
-			Status.Fatalf("Error: unable to create http request; %s\n",
-				"only one type of body can be accepted : either multipart form or url encoded values")
-		}
-
 		if c.NArg() == 0 {
 			cli.ShowAppHelp(c)
 			os.Exit(0)
 		}
 
-		if opts.verbose {
-			Incoming.(*LogWriter).SetOutput(os.Stderr)
-			Outgoing.(*LogWriter).SetOutput(os.Stderr)
-		}
-
-		if opts.head {
-			opts.method = "HEAD"
-			Incoming = io.MultiWriter(os.Stdout, Incoming.(*LogWriter))
-		}
-
-		if opts.maxTime > 0 {
-			maxTime(opts.maxTime)
-		}
-
-		target = c.Args().Get(0)
-		if remote, err = url.Parse(target); err != nil {
-			Status.Fatalf("Error: %s does not parse correctly as a URL\n", target)
-		}
-		if remote.Scheme == "" {
-			remote.Scheme = "http"
-			remote, _ = url.Parse(remote.String())
-		}
-
-		if opts.remoteName {
-			opts.outputFilename = path.Base(target)
-		}
-
-		outputFile := opts.openOutputFile()
-
-		continueAtInt := uint64(0)
-		if opts.continueAt != "" {
-			if opts.continueAt == "-" {
-				fileInfo, err := outputFile.Stat()
-				if err != nil {
-					Status.Fatalf("Error: unable to set content range automatically from file; %s\n", err)
-				}
-				continueAtInt = uint64(fileInfo.Size())
-			} else {
-				continueAtInt, err = strconv.ParseUint(opts.continueAt, 10, 64)
-				if err != nil {
-					Status.Fatalf("Error: unable to create http request; %s\n",
-						"expected a valid positive number for continue-at option")
-				}
-			}
-		}
-
-		if opts.fileUpload != "" {
-			opts.uploadFile()
-		}
-
-		if len(opts.data) > 0 || len(d) > 0 {
-			var data bytes.Buffer
-			opts.method = "POST"
-
-			header := ""
-
-			if len(opts.data) > 0 {
-				header = "Content-Type: application/x-www-form-urlencoded"
-				for i, d := range opts.data {
-					data.WriteString(d)
-					if i < len(opts.data)-1 {
-						data.WriteRune('&')
-					}
-				}
-			}
-
-			if len(d) > 0 {
-				w := multipart.NewWriter(&data)
-				for key, field := range d {
-					err := writeToMultipart(w, key, field)
-					if err != nil {
-						Status.Fatalf("Error: unable to create http request; %s\n", err)
-					}
-				}
-				w.Close()
-				header = "Content-Type: " + w.FormDataContentType()
-			}
-
-			opts.headers = append(opts.headers, header)
-			body = &data
-		}
-
-		req, err := http.NewRequest(opts.method, target, body)
+		err := opts.BuildCommonOptions(c)
 		if err != nil {
-			Status.Fatalf("Error: unable to create http %s request; %s\n", opts.method, err)
+			return err
 		}
-
-		if opts.verbose {
-			req = req.WithContext(httptrace.WithClientTrace(req.Context(), NewClientTraceForRequest(req)))
-		}
-
-		// Seek to given offset of the file and set the "Range" header
-		if continueAtInt > 0 {
-			if opts.outputFilename != "" {
-				_, err = outputFile.Seek(int64(continueAtInt), 0)
-				if err != nil {
-					Status.Fatalf("Error: seek in the given output file; %s\n", err)
-				}
-			}
-			req.Header.Set("Range", fmt.Sprintf("bytes=%d-", continueAtInt))
-		}
-		req.Header.Set("User-Agent", opts.agent)
-		if opts.user != "" {
-			req.Header.Set("Authorization", "Basic "+encodeToBase64(opts.user))
-		}
-		req.Header.Set("Accept", "*/*")
-		req.Header.Set("Host", remote.Host)
-		if body != nil {
-			switch b := body.(type) {
-			case *os.File:
-				fi, err := b.Stat()
-				if err != nil {
-					Status.Fatalf("Unable to get file stats for %v\n", opts.fileUpload)
-				}
-				req.ContentLength = fi.Size()
-				req.Header.Set("Content-Length", strconv.FormatInt(fi.Size(), 10))
-			case *ioprogress.Reader:
-				req.ContentLength = b.Size
-				req.Header.Set("Content-Length", strconv.FormatInt(b.Size, 10))
-			case *bytes.Buffer:
-				req.Header.Set("Content-Length", strconv.FormatInt(int64(b.Len()), 10))
-			}
-		}
-		setHeaders(req, opts.headers)
-		setCookieHeader(req, opts.cookie)
-
-		resp, err := client.Do(req)
+		err = fetchUrl(c.Args().Get(0), opts, c)
 		if err != nil {
-			Status.Fatalf("Error: Unable to get URL; %s\n", err)
-		}
-		defer resp.Body.Close()
-
-		if continueAtInt > 0 && resp.StatusCode == 416 {
-			Status.Fatalf("Error: Unable to get URL; %s\n", "Either the server doesn't support ranges or an invalid range is passed")
-		}
-
-		fmt.Fprintf(Incoming, "%s %s\n", resp.Proto, resp.Status)
-
-		for k, v := range resp.Header {
-			fmt.Fprintln(Incoming, k, v)
-		}
-
-		if !opts.head {
-			if !opts.silent {
-				progressR := &ioprogress.Reader{
-					Reader: resp.Body,
-					Size:   resp.ContentLength,
-					DrawFunc: ioprogress.DrawTerminalf(os.Stderr, func(progress, total int64) string {
-						return fmt.Sprintf(
-							"%s %s",
-							(ioprogress.DrawTextFormatBarWithIndicator(40, '<'))(progress, total),
-							ioprogress.DrawTextFormatBytes(progress, total))
-					}),
-				}
-				if _, err = io.Copy(outputFile, progressR); err != nil {
-					Status.Fatalf("Error: Failed to copy URL content; %s\n", err)
-				}
-			}
-			if opts.silent {
-				if _, err = io.Copy(outputFile, resp.Body); err != nil {
-					Status.Fatalf("Error: Failed to copy URL content; %s\n", err)
-				}
-			}
-		}
-
-		if opts.outputFilename != "" {
-			outputFile.Close()
-		}
-
-		if rTime := resp.Header.Get("Last-Modified"); opts.remoteTime && rTime != "" {
-			if t, err := time.Parse("Mon, 02 Jan 2006 15:04:05 MST", rTime); err == nil {
-				os.Chtimes(opts.outputFilename, t, t)
-			}
-		}
-
-		if opts.cookieJar != "" && len(resp.Cookies()) > 0 {
-			cookies := resp.Cookies()
-			for _, val := range cookies {
-				if val.Domain == "" {
-					u, err := resp.Location()
-					if err != nil {
-						u = req.URL
-					}
-
-					val.Domain = u.Hostname()
-				}
-			}
-			saveCookies(cookies, opts.cookieJar)
+			fmt.Fprintf(os.Stderr, "kurly : %s\n", err)
 		}
 		return nil
 	}
 
 	app.Run(os.Args)
+}
+
+func fetchUrl(target string, opts Options, c *cli.Context) error {
+	var remote *url.URL
+	var err error
+	var body io.Reader
+
+	err = opts.BuildTargetSpecificOptions(target, body)
+	if err != nil {
+		return err
+	}
+
+	client.CheckRedirect = opts.checkRedirect
+	if opts.insecure {
+		client.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+	}
+
+	if remote, err = url.Parse(target); err != nil {
+		return fmt.Errorf("Error: %s does not parse correctly as a URL", target)
+	}
+
+	if remote.Scheme == "" {
+		remote.Scheme = "http"
+		remote, _ = url.Parse(remote.String())
+	}
+
+	outputFile := opts.openOutputFile()
+
+	continueAtInt := uint64(0)
+	if opts.continueAt != "" {
+		if opts.continueAt == "-" {
+			fileInfo, err := outputFile.Stat()
+			if err != nil {
+				return fmt.Errorf("unable to set content range automatically from file; %s", err)
+			}
+			continueAtInt = uint64(fileInfo.Size())
+		} else {
+			continueAtInt, err = strconv.ParseUint(opts.continueAt, 10, 64)
+			if err != nil {
+				return fmt.Errorf("unable to create http request; expected a valid positive number for continue-at option")
+			}
+		}
+	}
+
+	req, err := http.NewRequest(opts.method, target, body)
+	if err != nil {
+		Status.Fatalf("Error: unable to create http %s request; %s\n", opts.method, err)
+	}
+
+	if opts.verbose {
+		req = req.WithContext(httptrace.WithClientTrace(req.Context(), NewClientTraceForRequest(req)))
+	}
+
+	// Seek to given offset of the file and set the "Range" header
+	if continueAtInt > 0 {
+		if opts.outputFilename != "" {
+			_, err = outputFile.Seek(int64(continueAtInt), 0)
+			if err != nil {
+				Status.Fatalf("Error: seek in the given output file; %s\n", err)
+			}
+		}
+		req.Header.Set("Range", fmt.Sprintf("bytes=%d-", continueAtInt))
+	}
+	req.Header.Set("User-Agent", opts.agent)
+	if opts.user != "" {
+		req.Header.Set("Authorization", "Basic "+encodeToBase64(opts.user))
+	}
+	req.Header.Set("Accept", "*/*")
+	req.Header.Set("Host", remote.Host)
+	if body != nil {
+		switch b := body.(type) {
+		case *os.File:
+			fi, err := b.Stat()
+			if err != nil {
+				Status.Fatalf("Unable to get file stats for %v\n", opts.fileUpload)
+			}
+			req.ContentLength = fi.Size()
+			req.Header.Set("Content-Length", strconv.FormatInt(fi.Size(), 10))
+		case *ioprogress.Reader:
+			req.ContentLength = b.Size
+			req.Header.Set("Content-Length", strconv.FormatInt(b.Size, 10))
+		case *bytes.Buffer:
+			req.Header.Set("Content-Length", strconv.FormatInt(int64(b.Len()), 10))
+		}
+	}
+	setHeaders(req, opts.headers)
+	setCookieHeader(req, opts.cookie)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if continueAtInt > 0 && resp.StatusCode == 416 {
+		return fmt.Errorf("unable to get URL; %s\n", "Either the server doesn't support ranges or an invalid range is passed")
+	}
+
+	fmt.Fprintf(Incoming, "%s %s\n", resp.Proto, resp.Status)
+
+	for k, v := range resp.Header {
+		fmt.Fprintln(Incoming, k, v)
+	}
+
+	if !opts.head {
+		if !opts.silent {
+			progressR := &ioprogress.Reader{
+				Reader: resp.Body,
+				Size:   resp.ContentLength,
+				DrawFunc: ioprogress.DrawTerminalf(os.Stderr, func(progress, total int64) string {
+					return fmt.Sprintf(
+						"%s %s",
+						(ioprogress.DrawTextFormatBarWithIndicator(40, '<'))(progress, total),
+						ioprogress.DrawTextFormatBytes(progress, total))
+				}),
+			}
+			if _, err = io.Copy(outputFile, progressR); err != nil {
+				return fmt.Errorf("failed to copy URL content; %s", err)
+			}
+		}
+		if opts.silent {
+			if _, err = io.Copy(outputFile, resp.Body); err != nil {
+				return fmt.Errorf("failed to copy URL content; %s", err)
+			}
+		}
+	}
+
+	if opts.outputFilename != "" {
+		outputFile.Close()
+	}
+
+	if rTime := resp.Header.Get("Last-Modified"); opts.remoteTime && rTime != "" {
+		if t, err := time.Parse("Mon, 02 Jan 2006 15:04:05 MST", rTime); err == nil {
+			os.Chtimes(opts.outputFilename, t, t)
+		}
+	}
+
+	if opts.cookieJar != "" && len(resp.Cookies()) > 0 {
+		cookies := resp.Cookies()
+		for _, val := range cookies {
+			if val.Domain == "" {
+				u, err := resp.Location()
+				if err != nil {
+					u = req.URL
+				}
+
+				val.Domain = u.Hostname()
+			}
+		}
+		saveCookies(cookies, opts.cookieJar)
+	}
+	return nil
 }
 
 func setHeaders(r *http.Request, h []string) {
