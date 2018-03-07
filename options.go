@@ -131,7 +131,7 @@ func (o *Options) getOptions(app *cli.App) {
 			Name:        "user-agent, A",
 			Usage:       "User agent to set for this request",
 			Destination: &o.agent,
-			Value:       "Kurly/1.0",
+			Value:       "Kurly/" + version,
 		},
 		cli.StringFlag{
 			Name:        "user, u",
