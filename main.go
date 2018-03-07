@@ -55,9 +55,15 @@ func main() {
 	app.Name = "kurly"
 	app.Usage = "[options] URL"
 	app.Version = "1.1.0"
+
 	opts.getOptions(app)
 
 	app.Action = func(c *cli.Context) error {
+		if c.NArg() == 0 {
+			cli.ShowAppHelp(c)
+			os.Exit(0)
+		}
+
 		err := opts.BuildCommonOptions(c)
 		if err != nil {
 			return err
