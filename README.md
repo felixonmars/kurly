@@ -103,9 +103,9 @@ Please see [CONTRIBUTING.md](https://github.com/davidjpeacock/kurly/blob/master/
 
 kurly is brought to you and maintained by:
 
-    * [Akilan Elango](https://github.com/aki237)
-    * [Al S-M](https://github.com/alsm)
-    * [David J Peacock](https://github.com/davidjpeacock)
+* [Akilan Elango](https://github.com/aki237)
+* [Al S-M](https://github.com/alsm)
+* [David J Peacock](https://github.com/davidjpeacock)
 
 ## License
 
