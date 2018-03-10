@@ -31,7 +31,7 @@ This commit adds functionality to help with things
 to do with the other thing that we also worked on before
 ```
 * Make use of [GitHub keywords](https://help.github.com/articles/closing-issues-using-keywords/) in your commit messages to automatically link pull requests to issues
+* When adding a new feature ie., adding a new commandline option, make sure to add documentation for the same in the [man page](meta/kurly.man) included in the project.
 
 Thanks,
 David Peacock
-
