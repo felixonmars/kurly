@@ -30,6 +30,8 @@ From source you can simply:
 
 * Arch Linux via Arch User Repos - `pacaur -S kurly` or `yaourt -S kurly`
 * Linux, using the [snap package](https://snapcraft.io/docs/core/install) - `snap install kurly`
+* Linux, installing the snap package from within the desktop app store: go to [https://snapcraft.io/kurly](https://snapcraft.io/kurly?mkt_tok=eyJpIjoiTmpBd056UmtZV1U1TVRrMSIsInQiOiJJN0U4RWNUSFN2NjZNV3hjOTFBaGpoWnJnRkdJWnFZVnUxeFE0SzJMYnU3Sit5cnh1anFLNkpMVUhOSjhBaENIN0d1T1FiUFdSMmVWR28zM3VqUHZLNHdsN0daVHhpdjFXNVRtMEJweDdYajVxT1FTSjEwdTZJekxpRjBTR1wvbGMifQ%3D%3D)
+  clicking the install button on this landing page will install Kurly.
 
 *If you're a package maintainer and you have prepared kurly for your OS of choice, please
 PR this section.*
