@@ -28,10 +28,13 @@ From source you can simply:
 
 `kurly` can be installed through package management systems on the following platforms:
 
-* Arch Linux via Arch User Repos - `pacaur -S kurly` or `yaourt -S kurly`
+* Arch Linux via Arch User Repos
+  + For stable versions : `pacaur -S kurly` or `yaourt -S kurly`
+  + For tip/development versions : `pacaur -S kurly-git` or `yaourt -S kurly-git` 
 * Linux, using the [snap package](https://snapcraft.io/docs/core/install) - `snap install kurly`
 * Linux, installing the snap package from within the desktop app store: go to [https://snapcraft.io/kurly](https://snapcraft.io/kurly?mkt_tok=eyJpIjoiTmpBd056UmtZV1U1TVRrMSIsInQiOiJJN0U4RWNUSFN2NjZNV3hjOTFBaGpoWnJnRkdJWnFZVnUxeFE0SzJMYnU3Sit5cnh1anFLNkpMVUhOSjhBaENIN0d1T1FiUFdSMmVWR28zM3VqUHZLNHdsN0daVHhpdjFXNVRtMEJweDdYajVxT1FTSjEwdTZJekxpRjBTR1wvbGMifQ%3D%3D)
   clicking the install button on this landing page will install Kurly.
+* Linux x86 64 via [RPM](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-1.1.0-0.x86_64.rpm) - `yum install kurly-1.1.0-0.x86_64.rpm`
 
 *If you're a package maintainer and you have prepared kurly for your OS of choice, please
 PR this section.*
@@ -40,10 +43,10 @@ PR this section.*
 
 Binaries are provided for the following platforms:
 
-* [Linux amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.0.0/kurly-linux-amd64-v1.0.0.tar.gz)
-* [Linux arm](https://github.com/davidjpeacock/kurly/releases/download/v1.0.0/kurly-linux-arm-v1.0.0.tar.gz)
-* [Mac OS X amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.0.0/kurly-osx-amd64-v1.0.0.tar.gz)
-* [Windows amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.0.0/kurly-windows-amd64-v1.0.0.zip)
+* [Linux amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-linux-amd64-v1.1.0.tar.gz)
+* [Linux arm](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-linux-arm-v1.1.0.tar.gz)
+* [Mac OS X amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-osx-amd64-v1.1.0.tar.gz)
+* [Windows amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-windows-amd64-v1.1.0.zip)
 
 ## Usage
 
@@ -96,8 +99,18 @@ love you to help.
 
 ## Contributing
 
-Bug reports, feature requests, and pull requests are all welcome.
+Bug reports, feature requests, and pull requests are all welcome.  Thank you!
+
+Please see [CONTRIBUTING.md](https://github.com/davidjpeacock/kurly/blob/master/CONTRIBUTING.md) for details of how to work with us.
+
+## Maintainers
+
+kurly is brought to you and maintained by:
+
+* [Akilan Elango](https://github.com/aki237)
+* [Al S-M](https://github.com/alsm)
+* [David J Peacock](https://github.com/davidjpeacock)
 
 ## License
 
-kurly is Copyright (c) 2017 David J Peacock and Al S-M, and is published under the Apache 2.0 license.
+kurly is Copyright (c) 2017-2018 David J Peacock and Al S-M, and is published under the Apache 2.0 license.
