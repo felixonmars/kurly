@@ -1,4 +1,4 @@
-.TH kurly 1 "January 03, 2018" "kurly 1.1.0" "kurly Manual"
+.TH kurly 1 "March 12, 2018" "kurly 1.2.0" "kurly Manual"
 
 .SH NAME
 kurly \- alternative to the popular program curl
@@ -102,6 +102,9 @@ Prints the usage. This lists all the usage and command line options than can be 
 
 .IP "-I, --head"
 Fetch only the headers. By this, \fBkurly\fP makes a HEAD request, for which the server responds with only the headers.
+
+.IP "-k, --insecure"
+This option allow kurly to continue even when the server connections are considered to be insecure.
 
 .IP "-L, --location"
 This option will make \fBkurly\fP to follow the redirects sent back by the server if any. The redirection location is specified in the
