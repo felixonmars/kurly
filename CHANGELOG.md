@@ -14,7 +14,7 @@ This file contains a record of all non-trivial changes to kurly
 * Handle multiple URLs
 * Snap installation via desktop UI
 
-## [1.1.0] 20121229
+## [1.1.0] 20171229
 
 ### Added
 * Resume transfer from offset
