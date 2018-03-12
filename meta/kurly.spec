@@ -1,13 +1,13 @@
 Name:           kurly
-Version:        1.1.0
+Version:        1.2.1
 Release:        0
 Summary:        alternative to the widely popular curl program
 License:        Apache-2.0
 Group:          Applications/Internet
 Url:            https://github.com/davidjpeacock/kurly
-Source:         https://github.com/davidjpeacock/kurly/archive/v1.1.0.tar.gz
+Source:         https://github.com/davidjpeacock/kurly/archive/v1.2.1.tar.gz
 BuildRequires:  go, git
-BuildRoot:      %{_tmppath}/%{name}-1.1.0-build
+BuildRoot:      %{_tmppath}/%{name}-1.2.1-build
 
 %global debug_package %{nil}
 
@@ -34,7 +34,11 @@ install -D kurly $RPM_BUILD_ROOT/usr/bin/kurly
 %defattr(-,root,root)
 
 %changelog
-* Fri Dec 29 2017 David J Peacock <david.j.peacock@gmail.com> 1.1.0
-- Resume transfer from offset
-- Cookie and cookie jar support
-- Send HTTP multipart post data
+* Mon Mar 12 2018 David J Peacock <david.j.peacock@gmail.com> 1.2.1
+- Improved verbosity
+- TLS Verbosity
+- Support for insecure HTTPS
+- Added man page
+- Behind-the-scenes refactor for future maintenance
+- Handle multiple URLs
+- Snap installation via desktop UI

@@ -1,4 +1,4 @@
-.TH kurly 1 "March 12, 2018" "kurly 1.2.0" "kurly Manual"
+.TH kurly 1 "March 12, 2018" "kurly 1.2.1" "kurly Manual"
 
 .SH NAME
 kurly \- alternative to the popular program curl
