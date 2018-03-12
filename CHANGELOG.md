@@ -3,12 +3,16 @@ This file contains a record of all non-trivial changes to kurly
 
 ## [Unreleased]
 
-### Added
-* -k flag; insecure SSL
-* TLS logging verbosity
+## [1.2.1] 20170312
 
-### Changed
-* General improvments to verbosity output
+### Added
+* Improved verbosity
+* TLS Verbosity
+* Support for insecure HTTPS
+* Added man page
+* Behind-the-scenes refactor for future maintenance
+* Handle multiple URLs
+* Snap installation via desktop UI
 
 ## [1.1.0] 20121229
 
