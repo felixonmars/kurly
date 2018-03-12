@@ -34,7 +34,7 @@ From source you can simply:
 * Linux, using the [snap package](https://snapcraft.io/docs/core/install) - `snap install kurly`
 * Linux, installing the snap package from within the desktop app store: go to [https://snapcraft.io/kurly](https://snapcraft.io/kurly?mkt_tok=eyJpIjoiTmpBd056UmtZV1U1TVRrMSIsInQiOiJJN0U4RWNUSFN2NjZNV3hjOTFBaGpoWnJnRkdJWnFZVnUxeFE0SzJMYnU3Sit5cnh1anFLNkpMVUhOSjhBaENIN0d1T1FiUFdSMmVWR28zM3VqUHZLNHdsN0daVHhpdjFXNVRtMEJweDdYajVxT1FTSjEwdTZJekxpRjBTR1wvbGMifQ%3D%3D)
   clicking the install button on this landing page will install Kurly.
-* Linux x86 64 via [RPM](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-1.1.0-0.x86_64.rpm) - `yum install kurly-1.1.0-0.x86_64.rpm`
+* Linux x86 64 via [RPM](https://github.com/davidjpeacock/kurly/releases/download/v1.2.1/kurly-1.2.1-0.x86_64.rpm) - `yum install kurly-1.2.1-0.x86_64.rpm`
 
 *If you're a package maintainer and you have prepared kurly for your OS of choice, please
 PR this section.*
@@ -43,10 +43,10 @@ PR this section.*
 
 Binaries are provided for the following platforms:
 
-* [Linux amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-linux-amd64-v1.1.0.tar.gz)
-* [Linux arm](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-linux-arm-v1.1.0.tar.gz)
-* [Mac OS X amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-osx-amd64-v1.1.0.tar.gz)
-* [Windows amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.1.0/kurly-windows-amd64-v1.1.0.zip)
+* [Linux amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.2.1/kurly-linux-amd64-v1.2.1.tar.gz)
+* [Linux arm](https://github.com/davidjpeacock/kurly/releases/download/v1.2.1/kurly-linux-arm-v1.2.1.tar.gz)
+* [Mac OS X amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.2.1/kurly-osx-amd64-v1.2.1.tar.gz)
+* [Windows amd64](https://github.com/davidjpeacock/kurly/releases/download/v1.2.1/kurly-windows-amd64-v1.2.1.zip)
 
 ## Usage
 
