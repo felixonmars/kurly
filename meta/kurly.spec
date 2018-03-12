@@ -42,3 +42,8 @@ install -D kurly $RPM_BUILD_ROOT/usr/bin/kurly
 - Behind-the-scenes refactor for future maintenance
 - Handle multiple URLs
 - Snap installation via desktop UI
+
+* Fri Dec 29 2017 David J Peacock <david.j.peacock@gmail.com> 1.1.0
+- Resume transfer from offset
+- Cookie and cookie jar support
+- Send HTTP multipart post data
