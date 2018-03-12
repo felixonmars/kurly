@@ -57,22 +57,36 @@ See `kurly --help` for usage information.
 Verbose output, showing headers
 ```
 $ kurly -v https://httpbin.org/ip
+*   Trying 23.23.171.5...
+* TCP_NODELAY set
+* Connected to httpbin.org (23.23.171.5) port 443 (#0)
+* APLN, server accepted to use http/1.1
+* TLSv1.2, TLS Handshake finished
+* SSL connection using TLSv1.2 / ECDHE-RSA-AES-128-GCM-SHA256
+* Server certificate:
+*  subject: CN=httpbin.org
+*  start date: Thu, 11 Jan 2018 23:37:29 UTC
+*  expire date: Wed, 11 Apr 2018 23:37:29 UTC
+*  issuer: C=US; O=Let's Encrypt; CN=Let's Encrypt Authority X3
+*  SSL certificate verify ok.
 > GET /ip HTTP/1.1
-> User-Agent [Kurly/1.0]
+> User-Agent [Kurly/1.2.1]
 > Accept [*/*]
 > Host [httpbin.org]
 < HTTP/1.1 200 OK
-< Date [Thu, 27 Apr 2017 22:46:57 GMT]
+< Server [meinheld/0.6.1]
 < Content-Type [application/json]
 < Access-Control-Allow-Credentials [true]
-< Content-Length [31]
+< Content-Length [33]
 < Via [1.1 vegur]
 < Connection [keep-alive]
-< Server [gunicorn/19.7.1]
+< Date [Mon, 12 Mar 2018 19:18:11 GMT]
 < Access-Control-Allow-Origin [*]
-[<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<] 31 B/31 B
+< X-Powered-By [Flask]
+< X-Processed-Time [0]
+[<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<] 33 B/33 B
 {
-      "origin": "8.41.12.77"
+  "origin": "43.122.23.223"
 }
 ```
 
