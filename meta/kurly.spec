@@ -25,12 +25,17 @@ go build -a -ldflags "-s -w -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \n
 
 %install
 install -D kurly $RPM_BUILD_ROOT/usr/bin/kurly
+gzip meta/kurly.man
+install -D -m 0644 meta/kurly.man.gz $RPM_BUILD_ROOT/usr/share/man/man1/kurly.1.gz
+install -D -m 0644 LICENSE $RPM_BUILD_ROOT/usr/share/licenses/kurly/LICENCE
 
 %post
 %postun
 
 %files
 %{_bindir}/kurly
+/usr/share/man/man1/kurly.1.gz
+/usr/share/licenses/kurly/LICENCE
 %defattr(-,root,root)
 
 %changelog
