@@ -3,7 +3,7 @@ This file contains a record of all non-trivial changes to kurly
 
 ## [Unreleased]
 
-## [1.2.1] 20170312
+## [1.2.1] 20180312
 
 ### Added
 * Improved verbosity
