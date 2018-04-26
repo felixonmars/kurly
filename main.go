@@ -14,6 +14,7 @@ import (
 	"net/textproto"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -112,6 +113,14 @@ func fetchUrl(target string, opts Options, c *cli.Context) error {
 	}
 
 	outputFile := opts.openOutputFile()
+
+	if opts.method == http.MethodPut {
+		// TODO : add support for reading contents from stdin
+		if strings.HasSuffix(remote.Path, "/") {
+			remote.Path = filepath.Join(remote.Path, filepath.Base(opts.fileUpload))
+			target = remote.String()
+		}
+	}
 
 	continueAtInt := uint64(0)
 	if opts.continueAt != "" {
