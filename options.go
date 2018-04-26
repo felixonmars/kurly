@@ -245,7 +245,8 @@ func (opts *Options) BuildCommonOptions(c *cli.Context) error {
 
 // BuildTargetSpecificOptions function is used to build the options specific to a given URL target.
 // This has to run for every URL separately.
-func (opts *Options) BuildTargetSpecificOptions(target string, body io.Reader) error {
+func (opts *Options) BuildTargetSpecificOptions(target string) (io.Reader, error) {
+	var body io.Reader
 	// Set the output filename from the remote URL, if -O is passed.
 	if opts.remoteName {
 		opts.outputFilename = path.Base(target)
@@ -253,7 +254,7 @@ func (opts *Options) BuildTargetSpecificOptions(target string, body io.Reader) e
 
 	// Initialize the file upload if specified.
 	if opts.fileUpload != "" {
-		opts.uploadFile(body)
+		body = opts.uploadFile()
 	}
 
 	// Process headers and post data
@@ -278,7 +279,7 @@ func (opts *Options) BuildTargetSpecificOptions(target string, body io.Reader) e
 			for key, field := range opts.fdata {
 				err := writeToMultipart(w, key, field)
 				if err != nil {
-					return fmt.Errorf("unable to create http request; %s\n", err)
+					return nil, fmt.Errorf("unable to create http request; %s\n", err)
 				}
 			}
 			w.Close()
@@ -289,7 +290,7 @@ func (opts *Options) BuildTargetSpecificOptions(target string, body io.Reader) e
 		body = &data
 	}
 
-	return nil
+	return body, nil
 }
 
 func (o *Options) ProcessData() {
@@ -342,7 +343,7 @@ func (o *Options) openOutputFile() *os.File {
 	return outputFile
 }
 
-func (o *Options) uploadFile(body io.Reader) {
+func (o *Options) uploadFile() io.Reader {
 	o.method = "PUT"
 
 	tr := &http.Transport{
@@ -361,7 +362,7 @@ func (o *Options) uploadFile(body io.Reader) {
 		if err != nil {
 			Status.Fatalf("Unable to get file stats for %v\n", o.fileUpload)
 		}
-		body = &ioprogress.Reader{
+		return &ioprogress.Reader{
 			Reader: reader,
 			Size:   fi.Size(),
 			DrawFunc: ioprogress.DrawTerminalf(os.Stderr, func(progress, total int64) string {
@@ -371,9 +372,9 @@ func (o *Options) uploadFile(body io.Reader) {
 					ioprogress.DrawTextFormatBytes(progress, total))
 			}),
 		}
-	} else {
-		body = reader
 	}
+
+	return reader
 }
 
 // ProcessFormData is used to parse the form data passed as commandline arguments.

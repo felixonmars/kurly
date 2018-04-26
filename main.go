@@ -90,7 +90,7 @@ func fetchUrl(target string, opts Options, c *cli.Context) error {
 	var err error
 	var body io.Reader
 
-	err = opts.BuildTargetSpecificOptions(target, body)
+	body, err = opts.BuildTargetSpecificOptions(target)
 	if err != nil {
 		return err
 	}
