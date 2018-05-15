@@ -29,6 +29,7 @@ func (ts *tracerStruct) WroteHeaders() {
 	for k, v := range ts.req.Header {
 		fmt.Fprintln(Outgoing, k, v)
 	}
+	fmt.Fprintln(Outgoing)
 }
 
 func (ts *tracerStruct) ConnectDone(network, addr string, err error) {

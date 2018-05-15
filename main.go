@@ -198,6 +198,8 @@ func fetchUrl(target string, opts Options, c *cli.Context) error {
 		fmt.Fprintln(Incoming, k, v)
 	}
 
+	fmt.Fprintln(Incoming)
+
 	if !opts.head {
 		if !opts.silent {
 			progressR := &ioprogress.Reader{

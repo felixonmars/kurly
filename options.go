@@ -188,6 +188,17 @@ func (o *Options) getOptions(app *cli.App) {
 func (o *Options) checkRedirect(req *http.Request, via []*http.Request) error {
 	o.redirectsTaken++
 
+	resp := req.Response
+
+	if resp != nil {
+		fmt.Fprintf(Incoming, "%s %s\n", resp.Proto, resp.Status)
+
+		for k, v := range resp.Header {
+			fmt.Fprintln(Incoming, k, v)
+		}
+		fmt.Fprintln(Incoming)
+	}
+
 	if !o.followRedirect || o.redirectsTaken >= o.maxRedirects {
 		return http.ErrUseLastResponse
 	}
