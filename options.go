@@ -190,6 +190,10 @@ func (o *Options) checkRedirect(req *http.Request, via []*http.Request) error {
 
 	resp := req.Response
 
+	if !o.followRedirect || o.redirectsTaken >= o.maxRedirects {
+		return http.ErrUseLastResponse
+	}
+
 	if resp != nil {
 		fmt.Fprintf(Incoming, "%s %s\n", resp.Proto, resp.Status)
 
@@ -197,10 +201,6 @@ func (o *Options) checkRedirect(req *http.Request, via []*http.Request) error {
 			fmt.Fprintln(Incoming, k, v)
 		}
 		fmt.Fprintln(Incoming)
-	}
-
-	if !o.followRedirect || o.redirectsTaken >= o.maxRedirects {
-		return http.ErrUseLastResponse
 	}
 
 	if o.verbose {
