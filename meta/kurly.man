@@ -32,7 +32,7 @@ which is equivalent to
 
 	curl -L -O -v https://httpbin.org/ip
 
-.B kurly expectes options to be specified separately.
+.B kurly expects options to be specified separately.
 
 .IP "-A, --user-agent <value>"
 This option is used to set the User Agent string header to the request. By default, "Kurly/1.0" is used.
